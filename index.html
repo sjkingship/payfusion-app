@@ -1,0 +1,129 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+  <meta charset="UTF-8" />
+  <meta name="viewport" content="width=device-width, initial-scale=1.0" />
+  <title>PayFusion Dashboard</title>
+  <style>
+    body {
+      margin: 0;
+      font-family: Arial, sans-serif;
+      background: #0F172A;
+      color: #F8FAFC;
+    }
+
+    .container {
+      max-width: 1100px;
+      margin: 0 auto;
+      padding: 40px 20px;
+    }
+
+    h1 {
+      font-size: 48px;
+      margin-bottom: 12px;
+    }
+
+    p {
+      color: #CBD5E1;
+      font-size: 18px;
+      line-height: 1.6;
+    }
+
+    .hero {
+      margin-bottom: 32px;
+    }
+
+    .actions {
+      margin-top: 24px;
+      display: flex;
+      gap: 12px;
+      flex-wrap: wrap;
+    }
+
+    .btn {
+      display: inline-block;
+      padding: 14px 22px;
+      border-radius: 10px;
+      text-decoration: none;
+      font-weight: 600;
+    }
+
+    .btn-primary {
+      background: #2E7D6B;
+      color: white;
+    }
+
+    .btn-secondary {
+      background: #1E293B;
+      color: #F8FAFC;
+      border: 1px solid rgba(255,255,255,0.08);
+    }
+
+    .grid {
+      display: grid;
+      grid-template-columns: repeat(auto-fit, minmax(240px, 1fr));
+      gap: 18px;
+      margin-top: 28px;
+    }
+
+    .card {
+      background: #111827;
+      border: 1px solid rgba(255,255,255,0.08);
+      border-radius: 16px;
+      padding: 22px;
+    }
+
+    .card h3 {
+      margin-top: 0;
+      margin-bottom: 10px;
+      color: #F8FAFC;
+    }
+
+    .card p {
+      margin-bottom: 16px;
+      font-size: 15px;
+    }
+
+    .mini {
+      color: #94A3B8;
+      font-size: 14px;
+      margin-top: 30px;
+    }
+  </style>
+</head>
+<body>
+  <div class="container">
+    <div class="hero">
+      <h1>PayFusion Dashboard</h1>
+      <p>Manage your payments, launch Fusion Links™, and track your earnings from one clean workspace.</p>
+
+      <div class="actions">
+        <a class="btn btn-primary" href="https://dashboard.stripe.com/payment-links" target="_blank">Create Fusion Link</a>
+        <a class="btn btn-secondary" href="https://dashboard.stripe.com/payments" target="_blank">View Payments</a>
+      </div>
+    </div>
+
+    <div class="grid">
+      <div class="card">
+        <h3>Fusion Links™</h3>
+        <p>Create and share payment links instantly so you can start accepting payments right away.</p>
+        <a class="btn btn-primary" href="https://dashboard.stripe.com/payment-links" target="_blank">Create Link</a>
+      </div>
+
+      <div class="card">
+        <h3>Fusion FastPay™</h3>
+        <p>Access faster payout workflows and premium earning tools as advanced features roll out.</p>
+        <a class="btn btn-secondary" href="#">Coming Soon</a>
+      </div>
+
+      <div class="card">
+        <h3>Fusion Split™</h3>
+        <p>Split revenue with collaborators and manage payment flows with cleaner team workflows.</p>
+        <a class="btn btn-secondary" href="#">Coming Soon</a>
+      </div>
+    </div>
+
+    <p class="mini">Powered by PayFusion with Stripe infrastructure.</p>
+  </div>
+</body>
+</html>
