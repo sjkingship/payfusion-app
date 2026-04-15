@@ -93,6 +93,10 @@
 </head>
 <body>
   <div class="container">
+    <div id="plan-status" style="margin-bottom:20px; font-weight:bold;">
+  Free Plan
+</div>
+
     <div class="hero">
       <h1>PayFusion Dashboard</h1>
       <p>Manage your payments, launch Fusion Links™, and track your earnings from one clean workspace.</p>
@@ -125,5 +129,18 @@
 
     <p class="mini">Powered by PayFusion with Stripe infrastructure.</p>
   </div>
+  <script>
+  const plan = localStorage.getItem("plan");
+
+  if (plan === "creator") {
+    document.getElementById("plan-status").innerText = "✅ Creator Plan Active";
+  } else if (plan === "pro") {
+    document.getElementById("plan-status").innerText = "🔥 Pro Plan Active";
+  } else {
+    document.getElementById("plan-status").innerText = "Free Plan";
+  }
+</script>
+
+
 </body>
 </html>
