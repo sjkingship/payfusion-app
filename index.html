@@ -135,6 +135,7 @@
 
 
 <script>
+  // Get plan from URL if exists (after Stripe redirect)
   const urlParams = new URLSearchParams(window.location.search);
   const planFromURL = urlParams.get("plan");
 
@@ -142,49 +143,87 @@
     localStorage.setItem("plan", planFromURL);
   }
 
+  // Default to free if nothing set
   const plan = localStorage.getItem("plan") || "free";
 
+  // Elements
   const planStatus = document.getElementById("plan-status");
   const createBtn = document.getElementById("create-link-btn");
   const splitBtn = document.getElementById("split-btn");
+  const cardCreateBtn = document.getElementById("card-create-btn");
 
+  // ===== PLAN LOGIC =====
   if (plan === "creator") {
     planStatus.innerText = "✅ Creator Plan Active";
 
-    createBtn.onclick = () => {
-      window.open("https://dashboard.stripe.com/payment-links", "_blank");
-    };
+    if (createBtn) {
+      createBtn.onclick = () => {
+        window.open("https://dashboard.stripe.com/payment-links", "_blank");
+      };
+    }
 
-    splitBtn.onclick = () => {
-      alert("Upgrade to Pro to use Fusion Split");
-      window.location.href = "/pricing.html";
-    };
+    if (cardCreateBtn) {
+      cardCreateBtn.onclick = () => {
+        window.open("https://dashboard.stripe.com/payment-links", "_blank");
+      };
+    }
+
+    if (splitBtn) {
+      splitBtn.onclick = () => {
+        alert("Upgrade to Pro to use Fusion Split");
+        window.location.href = "/pricing.html";
+      };
+    }
 
   } else if (plan === "pro") {
     planStatus.innerText = "🔥 Pro Plan Active";
 
-    createBtn.onclick = () => {
-      window.open("https://dashboard.stripe.com/payment-links", "_blank");
-    };
+    if (createBtn) {
+      createBtn.onclick = () => {
+        window.open("https://dashboard.stripe.com/payment-links", "_blank");
+      };
+    }
 
-    splitBtn.onclick = () => {
-      alert("Fusion Split Activated (Coming Soon UI)");
-    };
+    if (cardCreateBtn) {
+      cardCreateBtn.onclick = () => {
+        window.open("https://dashboard.stripe.com/payment-links", "_blank");
+      };
+    }
+
+    if (splitBtn) {
+      splitBtn.onclick = () => {
+        alert("Fusion Split Activated (Coming Soon UI)");
+      };
+    }
 
   } else {
+    // FREE PLAN
     planStatus.innerText = "Free Plan";
 
-    createBtn.onclick = () => {
-      alert("Upgrade to Creator to create payment links");
-      window.location.href = "/pricing.html";
-    };
+    if (createBtn) {
+      createBtn.onclick = () => {
+        alert("Upgrade to Creator to create payment links");
+        window.location.href = "/pricing.html";
+      };
+    }
 
-    splitBtn.onclick = () => {
-      alert("Upgrade to Pro to use Fusion Split");
-      window.location.href = "/pricing.html";
-    };
+    if (cardCreateBtn) {
+      cardCreateBtn.onclick = () => {
+        alert("Upgrade to Creator to create payment links");
+        window.location.href = "/pricing.html";
+      };
+    }
+
+    if (splitBtn) {
+      splitBtn.onclick = () => {
+        alert("Upgrade to Pro to use Fusion Split");
+        window.location.href = "/pricing.html";
+      };
+    }
   }
 </script>
+
+
 
 
 
