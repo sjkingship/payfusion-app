@@ -102,8 +102,10 @@
       <p>Manage your payments, launch Fusion Links™, and track your earnings from one clean workspace.</p>
 
       <div class="actions">
-        <a class="btn btn-primary" href="https://dashboard.stripe.com/payment-links" target="_blank">Create Fusion Link</a>
-        <a class="btn btn-secondary" href="https://dashboard.stripe.com/payments" target="_blank">View Payments</a>
+  <button id="create-link-btn" class="btn btn-primary">Create Fusion Link</button>
+  <button id="split-btn" class="btn btn-secondary">Fusion Split</button>
+</div>
+
       </div>
     </div>
 
@@ -129,17 +131,56 @@
 
     <p class="mini">Powered by PayFusion with Stripe infrastructure.</p>
   </div>
-  <script>
-  const plan = localStorage.getItem("plan");
+ 
+
+<script>
+  const urlParams = new URLSearchParams(window.location.search);
+  const planFromURL = urlParams.get("plan");
+
+  if (planFromURL) {
+    localStorage.setItem("plan", planFromURL);
+  }
+
+  const plan = localStorage.getItem("plan") || "free";
+
+  const planStatus = document.getElementById("plan-status");
+  const createBtn = document.getElementById("create-link-btn");
+  const splitBtn = document.getElementById("split-btn");
 
   if (plan === "creator") {
-    document.getElementById("plan-status").innerText = "✅ Creator Plan Active";
+    planStatus.innerText = "✅ Creator Plan Active";
+
+    createBtn.onclick = () => {
+      window.location.href = "https://dashboard.stripe.com/payment-links";
+    };
+
+    splitBtn.onclick = () => {
+      alert("Upgrade to Pro to unlock Fusion Split");
+    };
   } else if (plan === "pro") {
-    document.getElementById("plan-status").innerText = "🔥 Pro Plan Active";
+    planStatus.innerText = "🔥 Pro Plan Active";
+
+    createBtn.onclick = () => {
+      window.location.href = "https://dashboard.stripe.com/payment-links";
+    };
+
+    splitBtn.onclick = () => {
+      alert("Fusion Split Activated");
+    };
   } else {
-    document.getElementById("plan-status").innerText = "Free Plan";
+    planStatus.innerText = "Free Plan";
+
+    createBtn.onclick = () => {
+      alert("Upgrade to Creator to unlock Fusion Links");
+      window.location.href = "https://usepayfusion.com/pricing";
+    };
+
+    splitBtn.onclick = () => {
+      alert("Upgrade to Pro to unlock Fusion Split");
+      window.location.href = "https://usepayfusion.com/pricing";
+    };
   }
-</script>
+ >
 
 
 </body>
