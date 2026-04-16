@@ -133,6 +133,7 @@
   </div>
  
 
+
 <script>
   const urlParams = new URLSearchParams(window.location.search);
   const planFromURL = urlParams.get("plan");
@@ -151,36 +152,40 @@
     planStatus.innerText = "✅ Creator Plan Active";
 
     createBtn.onclick = () => {
-      window.location.href = "https://dashboard.stripe.com/payment-links";
+      window.open("https://dashboard.stripe.com/payment-links", "_blank");
     };
 
     splitBtn.onclick = () => {
-      alert("Upgrade to Pro to unlock Fusion Split");
+      alert("Upgrade to Pro to use Fusion Split");
+      window.location.href = "/pricing.html";
     };
+
   } else if (plan === "pro") {
     planStatus.innerText = "🔥 Pro Plan Active";
 
     createBtn.onclick = () => {
-      window.location.href = "https://dashboard.stripe.com/payment-links";
+      window.open("https://dashboard.stripe.com/payment-links", "_blank");
     };
 
     splitBtn.onclick = () => {
-      alert("Fusion Split Activated");
+      alert("Fusion Split Activated (Coming Soon UI)");
     };
+
   } else {
     planStatus.innerText = "Free Plan";
 
     createBtn.onclick = () => {
-      alert("Upgrade to Creator to unlock Fusion Links");
-      window.location.href = "https://usepayfusion.com/pricing";
+      alert("Upgrade to Creator to create payment links");
+      window.location.href = "/pricing.html";
     };
 
     splitBtn.onclick = () => {
-      alert("Upgrade to Pro to unlock Fusion Split");
-      window.location.href = "https://usepayfusion.com/pricing";
+      alert("Upgrade to Pro to use Fusion Split");
+      window.location.href = "/pricing.html";
     };
   }
- >
+</script>
+
 
 
 </body>
