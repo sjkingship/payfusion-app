@@ -1,5 +1,6 @@
 
 
+
 <!DOCTYPE html>
 <html>
 <head>
@@ -57,12 +58,12 @@
     import { getFirestore, doc, setDoc, serverTimestamp } from "https://www.gstatic.com/firebasejs/12.12.0/firebase-firestore.js";
 
     const firebaseConfig = {
-      apiKey: "AIzaSyBpDeyd06n7yLcIphI3CPfBtePKsGi1o58",
-      authDomain:  "pay-fusion-app.firebaseapp.com",
+      apiKey: "AIzaSyBpDeyd06n7yLcIphl3CPFtePKsGi1o58",
+      authDomain: "pay-fusion-app.firebaseapp.com",
       projectId: "pay-fusion-app",
-      storageBucket: "pay-fusion-app.firebasestorage.app"
-      messagingSenderId:  "1092785782469",
-      appId: "1:1092785782469:web:1127c3f6846478abcefaac",
+      storageBucket: "pay-fusion-app.firebasestorage.app",
+      messagingSenderId: "1092785782469",
+      appId: "1:1092785782469:web:1127c3f6846478abcefaac"
     };
 
     const app = initializeApp(firebaseConfig);
@@ -70,11 +71,13 @@
     const db = getFirestore(app);
 
     const msg = document.getElementById("msg");
+
     document.getElementById("signup-btn").addEventListener("click", async () => {
       const email = document.getElementById("email").value.trim();
       const password = document.getElementById("password").value;
 
       msg.textContent = "";
+
       if (!email || !password) {
         msg.textContent = "Enter email and password.";
         return;
@@ -82,6 +85,7 @@
 
       try {
         const cred = await createUserWithEmailAndPassword(auth, email, password);
+
         await setDoc(doc(db, "users", cred.user.uid), {
           email,
           plan: "free",
@@ -89,6 +93,7 @@
           stripeCustomerId: "",
           stripeSubscriptionId: ""
         });
+
         window.location.href = "/dashboard.html";
       } catch (err) {
         msg.textContent = err.message;
