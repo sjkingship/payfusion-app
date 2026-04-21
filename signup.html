@@ -1,0 +1,99 @@
+
+
+<!DOCTYPE html>
+<html>
+<head>
+  <title>Sign Up - PayFusion</title>
+  <style>
+    body {
+      background: #0b1320;
+      color: white;
+      font-family: Arial, sans-serif;
+      display: flex;
+      align-items: center;
+      justify-content: center;
+      height: 100vh;
+      margin: 0;
+    }
+    .box {
+      background: #111a2e;
+      padding: 30px;
+      border-radius: 12px;
+      width: 320px;
+    }
+    h2 { margin-top: 0; }
+    input, button {
+      width: 100%;
+      padding: 12px;
+      margin-top: 12px;
+      border-radius: 8px;
+      border: none;
+      box-sizing: border-box;
+      font-size: 16px;
+    }
+    button {
+      background: #4CAF80;
+      color: white;
+      cursor: pointer;
+      font-weight: bold;
+    }
+    a { color: #9fd4ff; display:block; margin-top:12px; text-align:center; }
+    #msg { margin-top: 12px; color: #ffb4b4; min-height: 20px; }
+  </style>
+</head>
+<body>
+  <div class="box">
+    <h2>Create Account</h2>
+    <input id="email" type="email" placeholder="Email" />
+    <input id="password" type="password" placeholder="Password" />
+    <button id="signup-btn">Create Account</button>
+    <a href="/login.html">Already have an account?</a>
+    <div id="msg"></div>
+  </div>
+
+  <script type="module">
+    import { initializeApp } from "https://www.gstatic.com/firebasejs/12.12.0/firebase-app.js";
+    import { getAuth, createUserWithEmailAndPassword } from "https://www.gstatic.com/firebasejs/12.12.0/firebase-auth.js";
+    import { getFirestore, doc, setDoc, serverTimestamp } from "https://www.gstatic.com/firebasejs/12.12.0/firebase-firestore.js";
+
+    const firebaseConfig = {
+      apiKey: "YOUR_API_KEY",
+      authDomain: "YOUR_PROJECT.firebaseapp.com",
+      projectId: "YOUR_PROJECT_ID",
+      storageBucket: "YOUR_PROJECT.firebasestorage.app",
+      messagingSenderId: "YOUR_SENDER_ID",
+      appId: "YOUR_APP_ID"
+    };
+
+    const app = initializeApp(firebaseConfig);
+    const auth = getAuth(app);
+    const db = getFirestore(app);
+
+    const msg = document.getElementById("msg");
+    document.getElementById("signup-btn").addEventListener("click", async () => {
+      const email = document.getElementById("email").value.trim();
+      const password = document.getElementById("password").value;
+
+      msg.textContent = "";
+      if (!email || !password) {
+        msg.textContent = "Enter email and password.";
+        return;
+      }
+
+      try {
+        const cred = await createUserWithEmailAndPassword(auth, email, password);
+        await setDoc(doc(db, "users", cred.user.uid), {
+          email,
+          plan: "free",
+          createdAt: serverTimestamp(),
+          stripeCustomerId: "",
+          stripeSubscriptionId: ""
+        });
+        window.location.href = "/dashboard.html";
+      } catch (err) {
+        msg.textContent = err.message;
+      }
+    });
+  </script>
+</body>
+</html>
