@@ -108,6 +108,20 @@
 
       </div>
     </div>
+<div class="link-box">
+  <h2>Create Fusion Link</h2>
+
+  <input id="link-title" type="text" placeholder="Link Title" />
+
+  <input id="link-amount" type="number" placeholder="Amount USD" />
+
+  <button id="create-link-btn">
+    Create Link
+  </button>
+
+  <div id="create-msg"></div>
+</div>
+
 
     <div class="grid">
       <div class="card">
@@ -230,6 +244,14 @@
 <script type="module">
 import { initializeApp } from "https://www.gstatic.com/firebasejs/12.12.0/firebase-app.js";
 import { getAuth, onAuthStateChanged, signOut } from "https://www.gstatic.com/firebasejs/12.12.0/firebase-auth.js";
+import {
+  getFirestore,
+  collection,
+  addDoc,
+  serverTimestamp
+} from "https://www.gstatic.com/firebasejs/12.12.0/firebase-firestore.js";
+
+
 
 const firebaseConfig = {
   apiKey: "AIzaSyBpDeyd06n7yLcIphI3CPfBtePKsGi1o58",
@@ -242,6 +264,8 @@ const firebaseConfig = {
 
 const app = initializeApp(firebaseConfig);
 const auth = getAuth(app);
+const db = getFirestore(app);
+
 
 onAuthStateChanged(auth, (user) => {
   if (!user) {
@@ -256,6 +280,38 @@ if (logoutBtn) {
     window.location.href = "/login.html";
   });
 }
+const createBtn = document.getElementById("create-link-btn");
+
+if (createBtn) {
+  createBtn.addEventListener("click", async () => {
+
+    const title = document.getElementById("link-title").value;
+    const amount = document.getElementById("link-amount").value;
+    const msg = document.getElementById("create-msg");
+
+    if (!title || !amount) {
+      msg.innerText = "Enter title and amount.";
+      return;
+    }
+
+    try {
+
+      await addDoc(collection(db, "payment_links"), {
+        title,
+        amount,
+        createdAt: serverTimestamp()
+      });
+
+      msg.innerText = "Fusion Link Created 🚀";
+
+    } catch (err) {
+      console.error(err);
+      msg.innerText = "Error creating link.";
+    }
+
+  });
+}
+
 </script>
 
 </body>
