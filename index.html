@@ -115,7 +115,10 @@
 
   <input id="link-amount" type="number" placeholder="Amount USD" />
 
-  <button id="create-link-btn">
+  <button id="fusion-create-link-btn">
+
+
+
     Create Link
   </button>
 
@@ -172,13 +175,17 @@
 
     if (createBtn) {
       createBtn.onclick = () => {
-        window.open(paymentLink, "_blank");
+      alert("Create a payment link using the form above first.");
+
+
       };
     }
 
     if (cardCreateBtn) {
       cardCreateBtn.onclick = () => {
-        window.open(paymentLink, "_blank");
+        alert("Create a payment link using the form above first.");
+
+
       };
     }
 
@@ -194,13 +201,17 @@
 
     if (createBtn) {
       createBtn.onclick = () => {
-        window.open(paymentLink, "_blank");
+       alert("Create a payment link using the form above first.");
+
+
       };
     }
 
     if (cardCreateBtn) {
       cardCreateBtn.onclick = () => {
-        window.open(paymentLink, "_blank");
+       alert("Create a payment link using the form above first.");
+
+
       };
     }
 
@@ -280,7 +291,9 @@ if (logoutBtn) {
     window.location.href = "/login.html";
   });
 }
-const createBtn = document.getElementById("create-link-btn");
+const createBtn = document.getElementById("fusion-create-link-btn");
+
+
 
 if (createBtn) {
   createBtn.addEventListener("click", async () => {
