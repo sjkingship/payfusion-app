@@ -124,6 +124,13 @@
 
   <div id="create-msg"></div>
 </div>
+<div class="link-box">
+  <h2>My Fusion Links</h2>
+  <div id="links-list"></div>
+</div>
+
+
+
 
 
     <div class="grid">
@@ -291,12 +298,12 @@ if (logoutBtn) {
     window.location.href = "/login.html";
   });
 }
-const createBtn = document.getElementById("fusion-create-link-btn");
+const fusionCreateBtn = document.getElementById("fusion-create-link-btn");
 
 
 
-if (createBtn) {
-  createBtn.addEventListener("click", async () => {
+if (fusionCreateBtn) {
+  fusionCreateBtn.addEventListener("click", async () => {
 
     const title = document.getElementById("link-title").value;
     const amount = document.getElementById("link-amount").value;
@@ -324,6 +331,28 @@ if (createBtn) {
 
   });
 }
+
+async function loadLinks() {
+  const linksList = document.getElementById("links-list");
+  if (!linksList) return;
+
+  const snapshot = await getDocs(collection(db, "payment_links"));
+
+  linksList.innerHTML = "";
+
+  snapshot.forEach((doc) => {
+    const data = doc.data();
+
+    linksList.innerHTML += `
+      <div style="padding:10px;border:1px solid #333;margin-bottom:10px;">
+        <strong>${data.title}</strong><br>
+        $${data.amount}
+      </div>
+    `;
+  });
+}
+
+loadLinks();
 
 </script>
 
