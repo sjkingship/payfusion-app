@@ -1,0 +1,52 @@
+<!DOCTYPE html>
+<html>
+<head>
+  <title>PayFusion Payment</title>
+</head>
+<body style="background:#111;color:white;font-family:Arial;padding:40px;">
+
+<h1 id="title">Loading...</h1>
+<h2 id="amount"></h2>
+
+<a id="payBtn"
+   href="https://buy.stripe.com/YOUR_LINK_HERE"
+   target="_blank">
+   <button style="padding:15px 30px;">
+      Pay Now
+   </button>
+</a>
+
+<script type="module">
+import { initializeApp } from "https://www.gstatic.com/firebasejs/10.12.2/firebase-app.js";
+import {
+  getFirestore,
+  doc,
+  getDoc
+} from "https://www.gstatic.com/firebasejs/10.12.2/firebase-firestore.js";
+
+const firebaseConfig = {
+  apiKey: "AIzaSyBpDeyd06n7yLcIphI3CPfBtePKsGi1o58",
+  authDomain: "pay-fusion-app.firebaseapp.com",
+  projectId: "pay-fusion-app",
+  storageBucket: "pay-fusion-app.firebasestorage.app",
+  messagingSenderId: "1092785782469",
+  appId: "1:1092785782469:web:1127c3f6846478abcefaac"
+};
+const app = initializeApp(firebaseConfig);
+const db = getFirestore(app);
+
+const params = new URLSearchParams(window.location.search);
+const id = params.get("id");
+
+const snap = await getDoc(doc(db, "payment_links", id));
+
+if (snap.exists()) {
+  const data = snap.data();
+
+  document.getElementById("title").innerText = data.title;
+  document.getElementById("amount").innerText = "$" + data.amount;
+}
+</script>
+
+</body>
+</html>
