@@ -348,6 +348,12 @@ async function loadLinks() {
       <div style="padding:10px;border:1px solid #333;margin-bottom:10px;">
         <strong>${data.title}</strong><br>
         $${data.amount}
+        <br>
+<a href="pay.html?id=${doc.id}" target="_blank">
+  Open Link
+</a>
+
+
       </div>
     `;
   });
