@@ -9,8 +9,7 @@
 <h2 id="amount"></h2>
 
 <a id="payBtn"
-   href=https://buy.stripe.com/6oUfZb1lG1p99080kT0Ny02
-
+   href="#"
    target="_blank">
    <button style="padding:15px 30px;">
       Pay Now
@@ -43,6 +42,8 @@ const snap = await getDoc(doc(db, "payment_links", id));
 
 if (snap.exists()) {
   const data = snap.data();
+  document.getElementById("payBtn").href = data.stripeUrl;
+
 
   document.getElementById("title").innerText = data.title;
   document.getElementById("amount").innerText = "$" + data.amount;
