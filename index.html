@@ -114,6 +114,11 @@
   <input id="link-title" type="text" placeholder="Link Title" />
 
   <input id="link-amount" type="number" placeholder="Amount USD" />
+  <input id="stripe-url" placeholder="Stripe Payment Link URL">
+
+
+
+
 
   <button id="fusion-create-link-btn">
 
@@ -308,6 +313,9 @@ if (fusionCreateBtn) {
 
     const title = document.getElementById("link-title").value;
     const amount = document.getElementById("link-amount").value;
+    const stripeUrl = document.getElementById("stripe-url").value;
+
+
     const msg = document.getElementById("create-msg");
 
     if (!title || !amount) {
@@ -320,6 +328,8 @@ if (fusionCreateBtn) {
       await addDoc(collection(db, "payment_links"), {
         title,
         amount,
+        stripeUrl,
+
         createdAt: serverTimestamp()
       });
 
