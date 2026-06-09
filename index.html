@@ -371,9 +371,11 @@ async function loadLinks() {
   Copy Link
 </button>
 <br><br>
-<button onclick="deleteDoc(doc.ref)">
+<button onclick="deleteLink('${doc.id}')">
   Delete Link
 </button>
+
+
 
 
 
@@ -382,6 +384,11 @@ async function loadLinks() {
     `;
   });
 }
+window.deleteLink = async function(id) {
+  await deleteDoc(doc(db, "payment_links", id));
+  loadLinks();
+};
+
 
 loadLinks();
 
