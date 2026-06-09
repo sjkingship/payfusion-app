@@ -332,6 +332,7 @@ if (fusionCreateBtn) {
         title,
         amount,
         stripeUrl,
+        uid: auth.currentUser.uid,
 
         createdAt: serverTimestamp()
       });
