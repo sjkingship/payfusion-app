@@ -272,6 +272,8 @@ import {
   collection,
   addDoc,
   getDocs,
+  deleteDoc,
+
   serverTimestamp
 } from "https://www.gstatic.com/firebasejs/12.12.0/firebase-firestore.js";
 
@@ -369,7 +371,10 @@ async function loadLinks() {
   Copy Link
 </button>
 <br><br>
-<button>Delete Link</button>
+<button onclick="deleteDoc(doc.ref)">
+  Delete Link
+</button>
+
 
 
 
