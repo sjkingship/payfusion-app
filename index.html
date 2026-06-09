@@ -357,6 +357,8 @@ async function loadLinks() {
 
   snapshot.forEach((doc) => {
     const data = doc.data();
+    if (data.uid !== auth.currentUser.uid) return;
+
 
     linksList.innerHTML += `
       <div style="padding:10px;border:1px solid #333;margin-bottom:10px;">
