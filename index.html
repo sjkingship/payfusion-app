@@ -108,6 +108,21 @@
 
       </div>
     </div>
+    <div class="link-box">
+  <h2>Revenue Dashboard</h2>
+
+  <p>Total Links:
+    <span id="total-links">0</span>
+  </p>
+
+  <p>Total Payments:
+    <span id="total-payments">0</span>
+  </p>
+
+  <p>Total Revenue:
+    $<span id="total-revenue">0</span>
+  </p>
+</div>
 <div class="link-box">
   <h2>Create Fusion Link</h2>
 
@@ -348,6 +363,8 @@ if (fusionCreateBtn) {
 }
 
 async function loadLinks() {
+  let totalLinks = 0;  
+
   const linksList = document.getElementById("links-list");
   if (!linksList) return;
 
@@ -356,6 +373,8 @@ async function loadLinks() {
   linksList.innerHTML = "";
 
   snapshot.forEach((doc) => {
+     totalLinks++;
+
     const data = doc.data();
     if (data.uid !== auth.currentUser.uid) return;
 
@@ -389,6 +408,9 @@ async function loadLinks() {
       </div>
     `;
   });
+  document.getElementById("total-links").innerText = totalLinks;
+
+
 }
 window.deleteLink = async function(id) {
   await deleteDoc(doc(db, "payment_links", id));
