@@ -298,6 +298,10 @@ import {
   doc,
   query,
   orderBy,
+  where,
+  limit
+
+
 
 
 
@@ -389,9 +393,18 @@ paymentHistory.innerHTML = "";
 
 const paymentsSnapshot =
   await getDocs(collection(db, "payments"));
+  let totalPayments = 0;
+  let totalRevenue = 0;
+
+
+
 
 paymentsSnapshot.forEach((payment) => {
   const data = payment.data();
+  totalPayments++;
+  totalRevenue += Number(data.amount || 0);
+
+
 
   paymentHistory.innerHTML += `
     <div style="padding:10px;border-bottom:1px solid #333;">
@@ -399,6 +412,10 @@ paymentsSnapshot.forEach((payment) => {
     </div>
   `;
 });
+document.getElementById("total-payments").innerText = totalPayments;
+document.getElementById("total-revenue").innerText = totalRevenue;
+
+
 
 
 
