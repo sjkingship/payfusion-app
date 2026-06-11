@@ -1,0 +1,43 @@
+
+const express = require("express");
+const Stripe = require("stripe");
+const cors = require("cors");
+
+const app = express();
+app.use(cors());
+app.use(express.static("."));
+app.use(express.json());
+
+const stripe = Stripe(process.env.STRIPE_SECRET_KEY);
+
+app.get("/connect/start", async (req, res) => {
+  try {
+    const account = await stripe.accounts.create({
+      type: "express",
+    });
+
+    const accountLink = await stripe.accountLinks.create({
+      account: account.id,
+      refresh_url: "https://app.usepayfusion.com/connect/refresh",
+      return_url: "https://app.usepayfusion.com/connect/return",
+      type: "account_onboarding",
+    });
+
+    res.redirect(accountLink.url);
+  } catch (err) {
+    console.error(err);
+    res.status(500).send("Stripe Connect error");
+  }
+});
+
+app.get("/connect/refresh", (req, res) => {
+  res.redirect("/connect/start");
+});
+
+app.get("/connect/return", (req, res) => {
+  res.send("Stripe Connect onboarding complete. You can return to PayFusion.");
+});
+
+app.listen(process.env.PORT || 3000, () => {
+  console.log("PayFusion server running");
+});
