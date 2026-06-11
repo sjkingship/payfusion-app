@@ -124,6 +124,13 @@
   </p>
 </div>
 <div class="link-box">
+  <h2>Payment History</h2>
+  <div id="payment-history"></div>
+</div>
+
+
+
+<div class="link-box">
   <h2>Create Fusion Link</h2>
 
   <input id="link-title" type="text" placeholder="Link Title" />
@@ -289,6 +296,12 @@ import {
   getDocs,
   deleteDoc,
   doc,
+  query,
+  orderBy,
+
+
+
+
 
   serverTimestamp
 } from "https://www.gstatic.com/firebasejs/12.12.0/firebase-firestore.js";
@@ -369,6 +382,25 @@ async function loadLinks() {
   if (!linksList) return;
 
   const snapshot = await getDocs(collection(db, "payment_links"));
+  const paymentHistory =
+  document.getElementById("payment-history");
+
+paymentHistory.innerHTML = "";
+
+const paymentsSnapshot =
+  await getDocs(collection(db, "payments"));
+
+paymentsSnapshot.forEach((payment) => {
+  const data = payment.data();
+
+  paymentHistory.innerHTML += `
+    <div style="padding:10px;border-bottom:1px solid #333;">
+      ${data.linkTitle} - $${data.amount} - ${data.status}
+    </div>
+  `;
+});
+
+
 
   linksList.innerHTML = "";
 
