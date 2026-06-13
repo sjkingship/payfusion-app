@@ -155,6 +155,22 @@
   <h2>My Fusion Links</h2>
   <div id="links-list"></div>
 </div>
+<div class="link-box">
+  <h2>Fusion Split™</h2>
+  <input id="split-email" type="email" placeholder="Split Recipient Email">
+  <input id="split-percent" type="number" placeholder="Split %">
+  <button id="save-split-btn">Save Split</button>
+</div>
+<div class="link-box">
+  <h2>Fusion FastPay™</h2>
+  <p>Request faster payout workflows once Stripe Connect is active.</p>
+  <button id="fastpay-btn">Request FastPay</button>
+</div>
+
+
+
+
+
 
 
 
@@ -467,9 +483,35 @@ window.deleteLink = async function(id) {
   await deleteDoc(doc(db, "payment_links", id));
   loadLinks();
 };
+};
 
+document.getElementById("save-split-btn").addEventListener("click", async () => {
+  const email = document.getElementById("split-email").value;
+  const percent = document.getElementById("split-percent").value;
+
+  await addDoc(collection(db, "splits"), {
+    email,
+    percent,
+    uid: auth.currentUser.uid,
+    createdAt: serverTimestamp()
+  });
+
+  alert("Fusion Split saved");
+});
+
+document.getElementById("fastpay-btn").addEventListener("click", async () => {
+  await addDoc(collection(db, "fastpay_requests"), {
+    uid: auth.currentUser.uid,
+    status: "requested",
+    createdAt: serverTimestamp()
+  });
+
+  alert("FastPay request saved");
+});
 
 loadLinks();
+
+
 
 </script>
 
