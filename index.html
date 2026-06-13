@@ -483,7 +483,7 @@ window.deleteLink = async function(id) {
   await deleteDoc(doc(db, "payment_links", id));
   loadLinks();
 };
-};
+
 
 document.getElementById("save-split-btn").addEventListener("click", async () => {
   const email = document.getElementById("split-email").value;
