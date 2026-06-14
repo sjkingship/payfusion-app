@@ -46,7 +46,7 @@ app.get("/connect/return", (req, res) => {
   res.send(`
     <h1>Stripe Connected Successfully ✅</h1>
     <p>You can now return to PayFusion.</p>
-    <a href="https://usepayfusion.com">Back to PayFusion</a>
+    <a href="https://app.usepayfusion.com">Back to PayFusion</a>
   `);
 });
 
