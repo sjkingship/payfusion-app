@@ -43,8 +43,14 @@ app.get("/connect/refresh", (req, res) => {
 });
 
 app.get("/connect/return", (req, res) => {
-  res.send("Stripe Connect onboarding complete. You can return to PayFusion.");
+  res.send(`
+    <h1>Stripe Connected Successfully ✅</h1>
+    <p>You can now return to PayFusion.</p>
+    <a href="https://usepayfusion.com">Back to PayFusion</a>
+  `);
 });
+
+
 
 app.listen(process.env.PORT || 3000, () => {
   console.log("PayFusion server running");
