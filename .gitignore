@@ -1,0 +1,15 @@
+# macOS
+.DS_Store
+
+# Demo recordings
+demo/
+app/demo/
+app/demo/recordings/
+
+# Video files
+*.mov
+*.mp4
+
+# Logs
+*.log
+
