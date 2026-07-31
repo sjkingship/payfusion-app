@@ -93,6 +93,13 @@
 </head>
 <body>
   <div class="container">
+    <div style="text-align:right; margin-bottom:20px;">
+    <button id="logoutBtn" class="btn btn-secondary">
+        Log Out
+    </button>
+</div>
+
+
     <div id="plan-status" style="margin-bottom:20px; font-weight:bold;">
   Free Plan
 </div>
@@ -521,6 +528,9 @@ document.getElementById("fastpay-btn").addEventListener("click", async () => {
 loadLinks();
 
 
+document.getElementById("logoutBtn").addEventListener("click", function () {
+    window.location.href = "/";
+});
 
 </script>
 
