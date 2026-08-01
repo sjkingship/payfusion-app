@@ -115,6 +115,7 @@
 </div>
 
 
+
     <div class="hero">
       <h1>PayFusion Dashboard</h1>
       <p>Manage your payments, launch Fusion Links™, and track your earnings from one clean workspace.</p>
@@ -536,12 +537,35 @@ document.getElementById("fastpay-btn").addEventListener("click", async () => {
   alert("FastPay request saved");
 });
 
-loadLinks();
 
 
-document.getElementById("logoutBtn").addEventListener("click", function () {
-    window.location.href = "/";
+
+ onAuthStateChanged(auth, (user) => {
+  if (!user) {
+    window.location.href = "login.html";
+    return;
+  }
+
+  document.getElementById("user-name").textContent =
+    user.displayName || user.email || "PayFusion User";
+
+  document.getElementById("user-plan").textContent = "Free";
+
+  loadLinks();
 });
+
+document.getElementById("logoutBtn").addEventListener("click", async () => {
+  try {
+    await signOut(auth);
+    window.location.href = "login.html";
+  } catch (error) {
+    console.error(error);
+    alert("Unable to log out.");
+  }
+});
+
+
+
 
 </script>
 
