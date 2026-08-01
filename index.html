@@ -113,6 +113,29 @@
     </div>
 
 </div>
+<div id="stripe-status-card" style="
+  margin-bottom:20px;
+  padding:16px;
+  border:1px solid #ddd;
+  border-radius:12px;
+  display:flex;
+  justify-content:space-between;
+  align-items:center;
+">
+  <div>
+    <strong>Stripe Status</strong><br>
+    <span id="stripe-status-text">Not Connected</span>
+  </div>
+
+  <button
+    id="connect-stripe-btn"
+    class="btn btn-primary"
+    type="button"
+  >
+    Connect Stripe
+  </button>
+</div>
+
 
 
 
@@ -564,7 +587,12 @@ document.getElementById("logoutBtn").addEventListener("click", async () => {
   }
 });
 
-
+document
+  .getElementById("connect-stripe-btn")
+  .addEventListener("click", () => {
+    window.location.href =
+      "https://YOUR-RENDER-BACKEND-URL/connect/start";
+  });
 
 
 </script>
