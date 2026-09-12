@@ -9,6 +9,7 @@ app.use(express.static("."));
 app.use(express.json());
 
 const stripe = Stripe(process.env.STRIPE_SECRET_KEY);
+let connectedStripeAccountId = null;
 
 
 app.get("/connect/start", async (req, res) => {
@@ -21,6 +22,7 @@ app.get("/connect/start", async (req, res) => {
         transfers: { requested: true }
       }
     });
+    connectedStripeAccountId = account.id;
 
     const accountLink = await stripe.accountLinks.create({
       account: account.id,
@@ -48,6 +50,40 @@ app.get("/connect/return", (req, res) => {
     <p>You can now return to PayFusion.</p>
     <a href="https://app.usepayfusion.com">Back to PayFusion</a>
   `);
+});
+app.get("/connect/status", async (req, res) => {
+  try {
+    if (!connectedStripeAccountId) {
+      return res.json({
+        status: "not_connected"
+      });
+    }
+
+    const account = await stripe.accounts.retrieve(
+      connectedStripeAccountId
+    );
+
+    if (account.charges_enabled && account.payouts_enabled) {
+      return res.json({
+        status: "connected",
+        charges_enabled: true,
+        payouts_enabled: true
+      });
+    }
+
+    return res.json({
+      status: "incomplete",
+      charges_enabled: account.charges_enabled,
+      payouts_enabled: account.payouts_enabled
+    });
+
+  } catch (err) {
+    console.error("Stripe status error:", err.message);
+
+    res.status(500).json({
+      status: "error"
+    });
+  }
 });
 
 

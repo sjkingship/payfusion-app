@@ -593,6 +593,35 @@ document
     window.location.href =
       "https://YOUR-RENDER-BACKEND-URL/connect/start";
   });
+  async function loadStripeStatus() {
+  const statusText = document.getElementById("stripe-status-text");
+
+  try {
+    const response = await fetch(
+      "https://YOUR-RENDER-BACKEND-URL/connect/status"
+    );
+
+    const data = await response.json();
+
+    if (data.status === "connected") {
+      statusText.textContent = "🟢 Connected";
+      return;
+    }
+
+    if (data.status === "incomplete") {
+      statusText.textContent = "🟡 Setup Incomplete";
+      return;
+    }
+
+    statusText.textContent = "🔴 Not Connected";
+
+  } catch (error) {
+    console.error("Unable to load Stripe status:", error);
+    statusText.textContent = "Status unavailable";
+  }
+}
+
+loadStripeStatus();
 
 
 </script>
