@@ -597,9 +597,7 @@ document
   const statusText = document.getElementById("stripe-status-text");
 
   try {
-    const response = await fetch(
-      "https://YOUR-RENDER-BACKEND-URL/connect/status"
-    );
+    const response = await fetch("/connect/status");
 
     const data = await response.json();
 
