@@ -600,6 +600,10 @@ document
     const response = await fetch("/connect/status");
 
     const data = await response.json();
+    if (data.status === "not_connected") {
+  statusText.textContent = "⚪ Not Connected";
+  return;
+}
 
     if (data.status === "connected") {
       statusText.textContent = "🟢 Connected";
