@@ -597,7 +597,7 @@ document
   const statusText = document.getElementById("stripe-status-text");
 
   try {
-    const response = await fetch("/connect/status");
+    const response = await fetch("https://payfusion-api-jw97.onrender.com/connect/status");
 
     const data = await response.json();
     if (data.status === "not_connected") {
