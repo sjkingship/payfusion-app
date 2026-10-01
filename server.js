@@ -2,16 +2,17 @@
 const express = require("express");
 const Stripe = require("stripe");
 const cors = require("cors");
-const admin = require("firebase-admin");
+const { initializeApp, cert } = require("firebase-admin/app");
+const { getFirestore, FieldValue } = require("firebase-admin/firestore");
 const serviceAccount = JSON.parse(
   process.env.FIREBASE_SERVICE_ACCOUNT
 );
 
-admin.initializeApp({
-  credential: admin.credential.cert(serviceAccount)
+initializeApp({
+  credential: cert(serviceAccount)
 });
 
-const db = admin.firestore();
+const db = getFirestore();
 
 const app = express();
 app.use(cors());
@@ -23,7 +24,7 @@ let connectedStripeAccountId = null;
 app.get("/firebase-health", async (req, res) => {
   try {
     await db.collection("_health").doc("test").set({
-      checkedAt: admin.firestore.FieldValue.serverTimestamp()
+      checkedAt: FieldValue.serverTimestamp()
     });
 
     res.json({
