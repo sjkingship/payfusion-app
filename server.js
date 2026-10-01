@@ -2,6 +2,16 @@
 const express = require("express");
 const Stripe = require("stripe");
 const cors = require("cors");
+const admin = require("firebase-admin");
+const serviceAccount = JSON.parse(
+  process.env.FIREBASE_SERVICE_ACCOUNT
+);
+
+admin.initializeApp({
+  credential: admin.credential.cert(serviceAccount)
+});
+
+const db = admin.firestore();
 
 const app = express();
 app.use(cors());
@@ -10,6 +20,23 @@ app.use(express.json());
 
 const stripe = Stripe(process.env.STRIPE_SECRET_KEY);
 let connectedStripeAccountId = null;
+app.get("/firebase-health", async (req, res) => {
+  try {
+    await db.collection("_health").doc("test").set({
+      checkedAt: admin.firestore.FieldValue.serverTimestamp()
+    });
+
+    res.json({
+      firebase: "connected"
+    });
+  } catch (err) {
+    console.error("Firebase health error:", err.message);
+
+    res.status(500).json({
+      firebase: "error"
+    });
+  }
+});
 
 
 app.get("/connect/start", async (req, res) => {
