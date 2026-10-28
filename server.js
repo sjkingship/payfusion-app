@@ -372,6 +372,50 @@ app.post("/fusion-deal/create", requireAuth, async (req, res) => {
     });
   }
 });
+// PayFusion: Fusion Teams — Create team
+app.post("/fusion-teams/create", requireAuth, async (req, res) => {
+  try {
+    const uid = req.user.uid;
+    const { teamName, description } = req.body || {};
+
+    if (
+      typeof teamName !== "string" ||
+      !teamName.trim() ||
+      teamName.trim().length > 120 ||
+      (description !== undefined &&
+        typeof description !== "string")
+    ) {
+      return res.status(400).json({
+        error: "Enter a valid team name and description."
+      });
+    }
+
+    const teamRef = db.collection("fusionTeams").doc();
+
+    await teamRef.set({
+      ownerUid: uid,
+      teamName: teamName.trim(),
+      description: (description || "").trim().slice(0, 500),
+      status: "active",
+      memberCount: 1,
+      createdAt: FieldValue.serverTimestamp(),
+      updatedAt: FieldValue.serverTimestamp()
+    });
+
+    return res.status(201).json({
+      teamId: teamRef.id,
+      teamName: teamName.trim(),
+      status: "active"
+    });
+
+  } catch (error) {
+    console.error("Fusion Teams error:", error.message);
+
+    return res.status(500).json({
+      error: "Unable to create team."
+    });
+  }
+});
 
 
 app.listen(process.env.PORT || 3000, () => {
