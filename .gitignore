@@ -13,3 +13,8 @@ app/demo/recordings/
 # Logs
 *.log
 
+
+node_modules/
+.env
+.env.*
+*.log
