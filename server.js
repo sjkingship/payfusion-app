@@ -38,13 +38,51 @@ app.post(
       return res.status(400).send("Invalid webhook signature");
     }
 
-    if (event.type === "checkout.session.completed") {
-      const session = event.data.object;
+    if (
+  event.type === "checkout.session.completed" ||
+  event.type === "checkout.session.async_payment_succeeded"
+) {
+  const session = event.data.object;
 
-      console.log("Verified Stripe checkout:", session.id);
-      // Next step: securely record confirmed payments in Firestore.
+  // A completed checkout does not always mean payment succeeded.
+  if (session.payment_status !== "paid") {
+    return res.status(200).json({ received: true });
+  }
+
+  const creatorUid = session.metadata?.firebaseUid;
+  const connectedAccountId = event.account;
+
+  if (!creatorUid || !connectedAccountId) {
+    console.warn("Payment missing creator or connected account", session.id);
+    return res.status(200).json({ received: true });
+  }
+
+  const expectedAccountId = await getUserStripeAccountId(creatorUid);
+
+  if (expectedAccountId !== connectedAccountId) {
+    console.error("Payment creator/account mismatch", session.id);
+    return res.status(200).json({ received: true });
+  }
+
+  const paymentRef = db.collection("fusionPayments").doc(session.id);
+
+  await paymentRef.create({
+    creatorUid,
+    connectedAccountId,
+    checkoutSessionId: session.id,
+    paymentIntentId: session.payment_intent || null,
+    amount: session.amount_total,
+    currency: session.currency,
+    status: "paid",
+    createdAt: new Date(),
+  }).catch((error) => {
+    if (error.code !== 6 && error.code !== "already-exists") {
+      throw error;
     }
+  });
 
+  console.log("PayFusion payment recorded:", session.id);
+}
     return res.status(200).json({ received: true });
   }
 );
