@@ -484,6 +484,112 @@ app.post("/fusion-teams/create", requireAuth, async (req, res) => {
     });
   }
 });
+// PayFusion: Fusion Intelligence — Verified payment analytics
+app.get("/fusion-intelligence/summary", requireAuth, async (req, res) => {
+  try {
+    const uid = req.user.uid;
+
+    const snapshot = await db
+      .collection("fusionPayments")
+      .where("creatorUid", "==", uid)
+      .get();
+
+    const payments = snapshot.docs
+      .map((doc) => ({ id: doc.id, ...doc.data() }))
+      .filter(
+        (payment) =>
+          payment.status === "paid" &&
+          payment.currency === "usd" &&
+          Number.isSafeInteger(payment.amount) &&
+          payment.amount >= 0
+      );
+
+    const totalCents = payments.reduce(
+      (sum, payment) => sum + payment.amount,
+      0
+    );
+
+    const count = payments.length;
+
+    const recent = payments
+      .sort((a, b) => {
+        const aTime = a.createdAt?.toMillis?.() || 0;
+        const bTime = b.createdAt?.toMillis?.() || 0;
+        return bTime - aTime;
+      })
+      .slice(0, 10)
+      .map((payment) => ({
+        id: payment.id,
+        amount: payment.amount,
+        currency: payment.currency,
+        status: payment.status
+      }));
+
+    return res.json({
+      currency: "usd",
+      totalRevenueCents: totalCents,
+      successfulPayments: count,
+      averagePaymentCents: count ? Math.round(totalCents / count) : 0,
+      recentTransactions: recent
+    });
+  } catch (error) {
+    console.error("Fusion Intelligence error:", error);
+    return res.status(500).json({
+      error: "Unable to load analytics."
+    });
+  }
+});
+// PayFusion: Fusion Flow — Save workflow configuration
+app.post("/fusion-flow/create", requireAuth, async (req, res) => {
+  try {
+    const creatorUid = req.user.uid;
+    const { flowName, trigger, action } = req.body || {};
+
+    const allowedTriggers = [
+      "booking_created",
+      "payment_completed",
+      "deal_created"
+    ];
+
+    const allowedActions = [
+      "create_task",
+      "notify_team",
+      "update_record"
+    ];
+
+    if (
+      typeof flowName !== "string" ||
+      !flowName.trim() ||
+      flowName.trim().length > 120 ||
+      !allowedTriggers.includes(trigger) ||
+      !allowedActions.includes(action)
+    ) {
+      return res.status(400).json({
+        error: "Enter a valid workflow name, trigger, and action."
+      });
+    }
+
+    const workflowRef = await db.collection("fusionFlows").add({
+      creatorUid,
+      flowName: flowName.trim(),
+      trigger,
+      action,
+      status: "draft",
+      createdAt: new Date(),
+      updatedAt: new Date()
+    });
+
+    return res.status(201).json({
+      flowId: workflowRef.id,
+      status: "draft"
+    });
+  } catch (error) {
+    console.error("Fusion Flow creation error:", error);
+    return res.status(500).json({
+      error: "Unable to create workflow."
+    });
+  }
+});
 
 
 app.listen(process.env.PORT || 3000, () => {

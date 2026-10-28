@@ -140,13 +140,20 @@
 
 
     <div class="hero">
-      <h1>PayFusion Dashboard</h1>
-      <p>Manage your payments, launch Fusion Links™, and track your earnings from one clean workspace.</p>
-
+      <h1>Fusion Hub™</h1>
+<p>Your PayFusion command center. Manage payments, bookings, deals, teams, and business performance in one workspace.</p>
       <div class="actions">
   <button id="create-link-btn" class="btn btn-primary">Create Fusion Link</button>
   <button id="split-btn" class="btn btn-secondary">Fusion Split</button>
 </div>
+<!-- Fusion Hub Navigation -->
+<nav class="actions" aria-label="Fusion Hub navigation">
+  <a class="btn btn-secondary" href="#fusion-book">Fusion Book™</a>
+  <a class="btn btn-secondary" href="#fusion-deal">Fusion Deal™</a>
+  <a class="btn btn-secondary" href="#fusion-teams">Fusion Teams™</a>
+  <a class="btn btn-secondary" href="#fusion-intelligence">Fusion Intelligence™</a>
+  <a class="btn btn-secondary" href="#fusion-flow">Fusion Flow™</a>
+</nav>
 
       </div>
     </div>
@@ -283,6 +290,73 @@
 
   <p id="team-message" role="status" aria-live="polite"></p>
 </div>
+<!-- PayFusion: Fusion Intelligence -->
+<section class="link-box" id="fusion-intelligence">
+  <h2>Fusion Intelligence™</h2>
+  <p>Understand your payment performance with verified transaction data.</p>
+
+  <div class="actions">
+    <div>
+      <h3>Total Revenue</h3>
+      <p id="intelligence-revenue">—</p>
+    </div>
+
+    <div>
+      <h3>Successful Payments</h3>
+      <p id="intelligence-payments">—</p>
+    </div>
+
+    <div>
+      <h3>Average Payment</h3>
+      <p id="intelligence-average">—</p>
+    </div>
+  </div>
+
+  <h3>Recent Transactions</h3>
+  <p id="intelligence-status" role="status">
+    Analytics will appear after verified payments are loaded.
+  </p>
+  <div id="intelligence-transactions"></div>
+</section>
+<!-- PayFusion: Fusion Flow -->
+<section class="link-box" id="fusion-flow">
+  <h2>Fusion Flow™</h2>
+  <p>
+    Create automated workflows connecting your PayFusion
+    bookings, deals, payments, and teams.
+  </p>
+
+  <form id="fusion-flow-form">
+    <label for="flow-name">Workflow Name</label>
+    <input
+      id="flow-name"
+      type="text"
+      maxlength="120"
+      placeholder="Example: New Booking Follow-Up"
+      required
+    >
+
+    <label for="flow-trigger">When this happens</label>
+    <select id="flow-trigger" required>
+      <option value="booking_created">Booking Created</option>
+      <option value="payment_completed">Payment Completed</option>
+      <option value="deal_created">Deal Created</option>
+    </select>
+
+    <label for="flow-action">Then do this</label>
+    <select id="flow-action" required>
+      <option value="create_task">Create Follow-Up Task</option>
+      <option value="notify_team">Notify Team</option>
+      <option value="update_record">Update Record</option>
+    </select>
+
+    <button type="submit" id="flow-submit">
+      Create Workflow
+    </button>
+  </form>
+
+  <p id="flow-message" role="status" aria-live="polite"></p>
+</section>
  <p id="stripe-status">
   Stripe Status: Connect account to activate payouts.
 </p>
@@ -467,9 +541,68 @@ onAuthStateChanged(auth, (user) => {
     return;
   }
 
-  loadStripeStatus();
+   loadStripeStatus();
+  loadFusionIntelligence();
 });
+// PayFusion: Fusion Intelligence — Load verified payment analytics
+async function loadFusionIntelligence() {
+  const status = document.getElementById("intelligence-status");
+  const revenue = document.getElementById("intelligence-revenue");
+  const payments = document.getElementById("intelligence-payments");
+  const average = document.getElementById("intelligence-average");
+  const transactions = document.getElementById("intelligence-transactions");
 
+  if (!status || !revenue || !payments || !average || !transactions) return;
+
+  status.textContent = "Loading analytics...";
+
+  try {
+    const user = auth.currentUser;
+    if (!user) return;
+
+    const token = await user.getIdToken();
+
+    const response = await fetch(
+      "https://payfusion-api-jw97.onrender.com/fusion-intelligence/summary",
+      {
+        headers: {
+          Authorization: `Bearer ${token}`
+        }
+      }
+    );
+
+    if (!response.ok) {
+      throw new Error("Analytics request failed");
+    }
+
+    const data = await response.json();
+
+    const usd = (cents) =>
+      new Intl.NumberFormat("en-US", {
+        style: "currency",
+        currency: "USD"
+      }).format(cents / 100);
+
+    revenue.textContent = usd(data.totalRevenueCents);
+    payments.textContent = String(data.successfulPayments);
+    average.textContent = usd(data.averagePaymentCents);
+
+    transactions.replaceChildren();
+
+    for (const payment of data.recentTransactions || []) {
+      const item = document.createElement("p");
+      item.textContent = `${usd(payment.amount)} — Paid`;
+      transactions.appendChild(item);
+    }
+
+    status.textContent = data.successfulPayments
+      ? "Verified payment analytics loaded."
+      : "No verified payments recorded yet.";
+  } catch (error) {
+    console.error("Fusion Intelligence:", error);
+    status.textContent = "Unable to load analytics right now.";
+  }
+}
 const logoutBtn = document.getElementById("logout");
 if (logoutBtn) {
   logoutBtn.addEventListener("click", async () => {
@@ -929,7 +1062,7 @@ if (fusionTeamsForm) {
       const idToken = await user.getIdToken();
 
       const response = await fetch(
-        "https://payfusion-api-jw87.onrender.com/fusion-teams/create",
+        "https://payfusion-api-jw97.onrender.com/fusion-teams/create",
         {
           method: "POST",
           headers: {
@@ -960,6 +1093,61 @@ if (fusionTeamsForm) {
         error.message || "Unable to create team.";
     } finally {
       submitButton.disabled = false;
+    }
+  });
+}
+// PayFusion: Fusion Flow — Create workflow draft
+const fusionFlowForm = document.getElementById("fusion-flow-form");
+
+if (fusionFlowForm) {
+  fusionFlowForm.addEventListener("submit", async (event) => {
+    event.preventDefault();
+
+    const message = document.getElementById("flow-message");
+    const submitBtn = document.getElementById("flow-submit");
+
+    submitBtn.disabled = true;
+    message.textContent = "Saving workflow...";
+
+    try {
+      const user = auth.currentUser;
+      if (!user) {
+        throw new Error("Please sign in again.");
+      }
+
+      const token = await user.getIdToken();
+
+      const response = await fetch(
+        "https://payfusion-api-jw87.onrender.com/fusion-flow/create",
+        {
+          method: "POST",
+          headers: {
+            "Content-Type": "application/json",
+            Authorization: `Bearer ${token}`
+          },
+          body: JSON.stringify({
+            flowName: document.getElementById("flow-name").value.trim(),
+            trigger: document.getElementById("flow-trigger").value,
+            action: document.getElementById("flow-action").value
+          })
+        }
+      );
+
+      const data = await response.json();
+
+      if (!response.ok) {
+        throw new Error(data.error || "Unable to save workflow.");
+      }
+
+      message.textContent =
+        `Workflow draft saved successfully. ID: ${data.flowId}`;
+
+      fusionFlowForm.reset();
+    } catch (error) {
+      console.error("Fusion Flow:", error);
+      message.textContent = error.message || "Something went wrong.";
+    } finally {
+      submitBtn.disabled = false;
     }
   });
 }
