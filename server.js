@@ -191,6 +191,133 @@ app.get("/connect/status", requireAuth, async (req, res) => {
     });
   }
 });
+// PayFusion: Create a Fusion Link checkout
+app.post("/fusion-links/create", requireAuth, async (req, res) => {
+  try {
+    const uid = req.user.uid;
+    const { amount, description } = req.body;
+
+    const amountCents = Number(amount);
+
+    if (
+      !Number.isSafeInteger(amountCents) ||
+      amountCents < 50 ||
+      amountCents > 100000000
+    ) {
+      return res.status(400).json({
+        error: "Enter a valid amount in cents (minimum 50)."
+      });
+    }
+
+    const stripeAccountId = await getUserStripeAccountId(uid);
+
+    if (!stripeAccountId) {
+      return res.status(400).json({
+        error: "Connect your Stripe account first."
+      });
+    }
+
+    const account = await stripe.accounts.retrieve(stripeAccountId);
+
+    if (!account.charges_enabled) {
+      return res.status(400).json({
+        error: "Complete Stripe onboarding before creating payment links."
+      });
+    }
+
+    const paymentDescription =
+      typeof description === "string"
+        ? description.trim().slice(0, 200)
+        : "";
+
+    const session = await stripe.checkout.sessions.create({
+      mode: "payment",
+      line_items: [
+        {
+          price_data: {
+            currency: "usd",
+            unit_amount: amountCents,
+            product_data: {
+              name: paymentDescription || "PayFusion Payment"
+            }
+          },
+          quantity: 1
+        }
+      ],
+      payment_intent_data: {
+        metadata: {
+          firebaseUid: uid
+        }
+      },
+      success_url: `${FRONTEND_URL}/?payment=success`,
+      cancel_url: `${FRONTEND_URL}/?payment=cancelled`,
+      metadata: {
+        firebaseUid: uid
+      }
+    }, {
+      stripeAccount: stripeAccountId
+    });
+
+    return res.json({
+      url: session.url,
+      sessionId: session.id
+    });
+
+  } catch (error) {
+    console.error("Fusion Links checkout error:", error.message);
+
+    return res.status(500).json({
+      error: "Unable to create payment link."
+    });
+  }
+});
+// PayFusion: Fusion Book — Create a booking
+app.post("/fusion-book/create", requireAuth, async (req, res) => {
+  try {
+    const uid = req.user.uid;
+    const { clientName, service, bookingDate, depositAmount } = req.body || {};
+
+    if (
+      typeof clientName !== "string" ||
+      !clientName.trim() ||
+      typeof service !== "string" ||
+      !service.trim() ||
+      typeof bookingDate !== "string" ||
+      !Number.isFinite(Date.parse(bookingDate)) ||
+      !Number.isSafeInteger(depositAmount) ||
+      depositAmount < 0
+    ) {
+      return res.status(400).json({
+        error: "Valid client, service, date, and deposit amount are required."
+      });
+    }
+
+    const bookingRef = db.collection("fusionBookings").doc();
+
+    await bookingRef.set({
+      creatorUid: uid,
+      clientName: clientName.trim().slice(0, 120),
+      service: service.trim().slice(0, 160),
+      bookingDate: new Date(bookingDate).toISOString(),
+      depositAmount,
+      currency: "usd",
+      status: "pending",
+      paymentStatus: "unpaid",
+      createdAt: FieldValue.serverTimestamp()
+    });
+
+    return res.status(201).json({
+      bookingId: bookingRef.id,
+      status: "pending"
+    });
+
+  } catch (error) {
+    console.error("Fusion Book error:", error.message);
+    return res.status(500).json({
+      error: "Unable to create booking."
+    });
+  }
+});
 
 
 app.listen(process.env.PORT || 3000, () => {

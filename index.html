@@ -208,6 +208,31 @@
   <p>Request faster payout workflows once Stripe Connect is active.</p>
   <button id="fastpay-btn">Request FastPay</button>
 </div>
+<!-- PayFusion: Fusion Book -->
+<div class="link-box" id="fusion-book">
+  <h2>Fusion Book™</h2>
+  <p>Create bookings, manage clients, and collect deposits.</p>
+
+  <form id="fusion-book-form">
+    <label for="book-client">Client Name</label>
+    <input id="book-client" type="text" maxlength="120" required>
+
+    <label for="book-service">Service</label>
+    <input id="book-service" type="text" maxlength="160" required>
+
+    <label for="book-date">Booking Date & Time</label>
+    <input id="book-date" type="datetime-local" required>
+
+    <label for="book-deposit">Deposit Amount (USD)</label>
+    <input id="book-deposit" type="number" min="0" step="0.01" value="0" required>
+
+    <button type="submit" id="book-submit">
+      Create Booking
+    </button>
+  </form>
+
+  <p id="book-message" role="status" aria-live="polite"></p>
+</div>
  <p id="stripe-status">
   Stripe Status: Connect account to activate payouts.
 </p>
@@ -651,7 +676,7 @@ if (connectStripeButton) {
       const idToken = await user.getIdToken();
 
       const response = await fetch(
-        "https://payfusion-api-jw87.onrender.com/connect/start",
+        "https://payfusion-api-jw97.onrender.com/connect/start",
         {
           method: "POST",
           headers: {
@@ -678,6 +703,86 @@ if (connectStripeButton) {
       alert("Stripe connection could not be started. Please try again.");
     } finally {
       connectStripeButton.disabled = false;
+    }
+  });
+}
+// PayFusion: Fusion Book — Save booking
+const fusionBookForm = document.getElementById("fusion-book-form");
+const bookMessage = document.getElementById("book-message");
+
+if (fusionBookForm) {
+  fusionBookForm.addEventListener("submit", async (event) => {
+    event.preventDefault();
+
+    const submitButton = document.getElementById("book-submit");
+    submitButton.disabled = true;
+    bookMessage.textContent = "Creating booking...";
+
+    try {
+      const user = auth.currentUser;
+
+      if (!user) {
+        throw new Error("Please sign in first.");
+      }
+
+      const depositInput =
+        document.getElementById("book-deposit").value.trim();
+
+      if (!/^\d+(\.\d{1,2})?$/.test(depositInput)) {
+        throw new Error("Enter a valid deposit amount.");
+      }
+
+      const [dollars, cents = ""] = depositInput.split(".");
+      const depositAmount =
+        Number(dollars) * 100 + Number(cents.padEnd(2, "0"));
+
+      if (!Number.isSafeInteger(depositAmount)) {
+        throw new Error("Invalid deposit amount.");
+      }
+
+      const bookingDate =
+        document.getElementById("book-date").value;
+
+      if (!bookingDate || !Number.isFinite(Date.parse(bookingDate))) {
+        throw new Error("Enter a valid booking date.");
+      }
+
+      const idToken = await user.getIdToken();
+
+      const response = await fetch(
+        "https://payfusion-api-jw87.onrender.com/fusion-book/create",
+        {
+          method: "POST",
+          headers: {
+            Authorization: `Bearer ${idToken}`,
+            "Content-Type": "application/json"
+          },
+          body: JSON.stringify({
+            clientName: document.getElementById("book-client").value.trim(),
+            service: document.getElementById("book-service").value.trim(),
+            bookingDate: new Date(bookingDate).toISOString(),
+            depositAmount
+          })
+        }
+      );
+
+      const data = await response.json();
+
+      if (!response.ok) {
+        throw new Error(data.error || "Unable to create booking.");
+      }
+
+      bookMessage.textContent =
+        `Booking created! Reference: ${data.bookingId}`;
+
+      fusionBookForm.reset();
+
+    } catch (error) {
+      console.error("Fusion Book error:", error);
+      bookMessage.textContent =
+        error.message || "Unable to create booking.";
+    } finally {
+      submitButton.disabled = false;
     }
   });
 }
