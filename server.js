@@ -18,6 +18,36 @@ const db = getFirestore();
 const app = express();
 app.use(cors());
 app.use(express.static("."));
+// PayFusion: Stripe payment webhook
+app.post(
+  "/stripe/webhook",
+  express.raw({ type: "application/json" }),
+  async (req, res) => {
+    const signature = req.headers["stripe-signature"];
+
+    let event;
+
+    try {
+      event = stripe.webhooks.constructEvent(
+        req.body,
+        signature,
+        process.env.STRIPE_WEBHOOK_SECRET
+      );
+    } catch (error) {
+      console.error("Stripe webhook verification failed:", error.message);
+      return res.status(400).send("Invalid webhook signature");
+    }
+
+    if (event.type === "checkout.session.completed") {
+      const session = event.data.object;
+
+      console.log("Verified Stripe checkout:", session.id);
+      // Next step: securely record confirmed payments in Firestore.
+    }
+
+    return res.status(200).json({ received: true });
+  }
+);
 app.use(express.json());
 
 const stripe = Stripe(process.env.STRIPE_SECRET_KEY);
