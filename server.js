@@ -318,6 +318,60 @@ app.post("/fusion-book/create", requireAuth, async (req, res) => {
     });
   }
 });
+// PayFusion: Fusion Deal — Create draft agreement
+app.post("/fusion-deal/create", requireAuth, async (req, res) => {
+  try {
+    const uid = req.user.uid;
+    const {
+      clientName,
+      dealTitle,
+      description,
+      amount
+    } = req.body || {};
+
+    if (
+      typeof clientName !== "string" ||
+      !clientName.trim() ||
+      typeof dealTitle !== "string" ||
+      !dealTitle.trim() ||
+      typeof description !== "string" ||
+      typeof amount !== "number" ||
+      !Number.isSafeInteger(amount) ||
+      amount < 0 ||
+      amount > 100000000
+    ) {
+      return res.status(400).json({
+        error: "Valid client, title, description, and amount are required."
+      });
+    }
+
+    const dealRef = db.collection("fusionDeals").doc();
+
+    await dealRef.set({
+      creatorUid: uid,
+      clientName: clientName.trim().slice(0, 120),
+      dealTitle: dealTitle.trim().slice(0, 160),
+      description: description.trim().slice(0, 2000),
+      amount,
+      currency: "usd",
+      status: "draft",
+      paymentStatus: "unpaid",
+      createdAt: FieldValue.serverTimestamp()
+    });
+
+    return res.status(201).json({
+      dealId: dealRef.id,
+      status: "draft"
+    });
+
+  } catch (error) {
+    console.error("Fusion Deal error:", error.message);
+
+    return res.status(500).json({
+      error: "Unable to create deal."
+    });
+  }
+});
 
 
 app.listen(process.env.PORT || 3000, () => {
